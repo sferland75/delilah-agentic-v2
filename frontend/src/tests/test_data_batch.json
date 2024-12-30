@@ -1,0 +1,30 @@
+{
+  "assessments": [
+    {
+      "id": "1",
+      "status": "draft",
+      "assessment_type": "initial",
+      "patient_name": "John Doe",
+      "date": "2024-01-01",
+      "scores": {
+        "motor": { "raw_score": 85, "percentile": 75 },
+        "sensory": { "raw_score": 90, "percentile": 80 },
+        "cognitive": { "raw_score": 88, "percentile": 78 }
+      }
+    }
+  ],
+  "documentations": [
+    {
+      "id": "1",
+      "assessment_id": "1",
+      "content": "Initial assessment documentation"
+    }
+  ],
+  "analyses": [
+    {
+      "id": "1",
+      "assessment_id": "1",
+      "findings": "Sample analysis findings"
+    }
+  ]
+}

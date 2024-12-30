@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: delilah
+      POSTGRES_PASSWORD: delilah123
+      POSTGRES_DB: delilah_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
+    command: >
+      postgres
+      -c "hba_file=/etc/postgresql/pg_hba.conf"
+      -c "password_encryption=scram-sha-256"
+
+volumes:
+  postgres_data:

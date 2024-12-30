@@ -1,0 +1,21 @@
+# Occupational Therapy Assessment Report
+
+## Client Information
+Name: {{ assessment.client_name }}
+Date: {{ assessment.assessment_date }}
+Therapist: {{ assessment.therapist_name }}
+
+## Summary
+{{ sections.summary }}
+
+## Assessment Details
+{{ sections.assessment }}
+
+## Analysis
+{{ sections.analysis }}
+
+## Recommendations
+{{ sections.recommendations }}
+
+## Additional Notes
+{{ assessment.notes if assessment.notes else "No additional notes." }}

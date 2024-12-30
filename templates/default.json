@@ -1,0 +1,41 @@
+{
+    "id": "default",
+    "name": "Standard OT Assessment Report",
+    "version": "1.0",
+    "sections": [
+        {
+            "id": "summary",
+            "type": "summary",
+            "title": "Executive Summary",
+            "required": true
+        },
+        {
+            "id": "assessment",
+            "type": "assessment",
+            "title": "Assessment Details",
+            "required": true,
+            "subsections": [
+                "mobility",
+                "daily_activities",
+                "environment"
+            ]
+        },
+        {
+            "id": "analysis",
+            "type": "analysis",
+            "title": "Analysis & Findings",
+            "required": true
+        },
+        {
+            "id": "recommendations",
+            "type": "recommendations",
+            "title": "Recommendations & Action Plan",
+            "required": true
+        }
+    ],
+    "metadata": {
+        "intended_use": "Standard OT assessment documentation",
+        "typical_completion_time": "30-45 minutes",
+        "required_assessment_types": ["mobility", "daily_activities", "environmental"]
+    }
+}

@@ -1,0 +1,31 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+.env
+
+# Build
+build
+dist
+
+# Development
+.idea
+.vscode
+*.swp
+*.swo
+
+# System
+.DS_Store
+Thumbs.db
