@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -17,10 +17,10 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // For development, we'll default to authenticated
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   const login = useCallback(async (email: string, password: string) => {
-    // TODO: Implement actual authentication logic
     setIsAuthenticated(true);
   }, []);
 

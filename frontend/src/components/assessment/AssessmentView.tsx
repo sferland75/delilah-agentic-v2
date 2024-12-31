@@ -1,75 +1,95 @@
-import React from 'react';
-import { AssessmentData } from '../../types/assessment';
+// ... previous imports ...
+import { generateAssessmentPDF } from '../../services/pdfService';
+import { PDFViewer } from './PDFViewer';
 
-interface Props {
-    assessment: AssessmentData;
-}
+const AssessmentView: React.FC = () => {
+    // ... previous state and hooks ...
+    const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+    const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
-export const AssessmentView: React.FC<Props> = ({ assessment }) => {
+    const handleGeneratePDF = async () => {
+        if (!assessment) return;
+        
+        setIsGeneratingPDF(true);
+        try {
+            const blob = await generateAssessmentPDF(assessment);
+            setPdfBlob(blob);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            setToast({
+                message: 'Failed to generate PDF',
+                type: 'error'
+            });
+        } finally {
+            setIsGeneratingPDF(false);
+        }
+    };
+
+    const handleDownloadPDF = async () => {
+        if (!assessment || !pdfBlob) return;
+        
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `assessment-${assessment.id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    // Update the actions section in the JSX
     return (
-        <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500">Client Information</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    <div>Name: {assessment.core.clientInfo.name}</div>
-                    <div>Date of Birth: {assessment.core.clientInfo.dateOfBirth}</div>
-                    <div>Address: {assessment.core.clientInfo.address}</div>
-                    <div>Email: {assessment.core.clientInfo.email}</div>
-                    <div>Phone: {assessment.core.clientInfo.phone}</div>
-                </dd>
-            </div>
-
-            <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500">Functional Status</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    <div>Mobility: {assessment.core.functionalStatus.mobility}</div>
-                    <div>Self Care: {assessment.core.functionalStatus.selfCare}</div>
-                    <div>Communication: {assessment.core.functionalStatus.communication}</div>
-                    <div>Cognition: {assessment.core.functionalStatus.cognition}</div>
-                </dd>
-            </div>
-
-            {assessment.form1 && (
-                <div className="sm:col-span-2">
-                    <dt className="text-sm font-medium text-gray-500">Form 1 Assessment</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <div>Monthly Cost: ${assessment.form1.monthlyCost.toFixed(2)}</div>
-                        <div>Level of Care: {assessment.form1.levelOfCare}</div>
-                        <div>Total Hours: {
-                            Object.values(assessment.form1.attendantCare)
-                                .reduce((sum, care) => sum + care.totalHours, 0)
-                        }</div>
-                    </dd>
+        <>
+            {/* ... previous JSX ... */}
+            
+            {/* PDF Actions */}
+            <div className="px-4 py-4 sm:px-6 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                    <div className="flex space-x-3">
+                        <button
+                            onClick={handleGeneratePDF}
+                            disabled={isGeneratingPDF}
+                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                        >
+                            {isGeneratingPDF ? (
+                                <>
+                                    <LoadingSpinner className="w-4 h-4 mr-2" />
+                                    Generating PDF...
+                                </>
+                            ) : (
+                                'Preview PDF'
+                            )}
+                        </button>
+                        {pdfBlob && (
+                            <button
+                                onClick={handleDownloadPDF}
+                                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                            >
+                                Download PDF
+                            </button>
+                        )}
+                    </div>
                 </div>
+            </div>
+
+            {/* PDF Viewer Modal */}
+            {pdfBlob && (
+                <PDFViewer
+                    pdfBlob={pdfBlob}
+                    onClose={() => setPdfBlob(null)}
+                />
             )}
 
-            {assessment.cat && (
-                <div className="sm:col-span-2">
-                    <dt className="text-sm font-medium text-gray-500">CAT Assessment</dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <div>Clinical Observations: {assessment.cat.clinicalObservations}</div>
-                        <div className="mt-2">
-                            <h4 className="font-medium">Functional Impacts:</h4>
-                            <ul className="list-disc pl-5 mt-1">
-                                {assessment.cat.functionalImpacts.adl.map((impact, idx) => (
-                                    <li key={idx}>{impact}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    </dd>
-                </div>
+            {/* Toast Messages */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
             )}
-
-            <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500">Environmental Assessment</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    <div>Type: {assessment.core.homeEnvironment.housingType}</div>
-                    <div>Access: {assessment.core.homeEnvironment.accessibility}</div>
-                    <div>Safety: {assessment.core.homeEnvironment.safety}</div>
-                    <div>Modifications: {assessment.core.homeEnvironment.modifications.join(', ')}</div>
-                </dd>
-            </div>
-        </dl>
+        </>
     );
 };
 

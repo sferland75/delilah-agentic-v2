@@ -1,6 +1,7 @@
-export { default as DemographicSection } from './DemographicSection';
-export { default as ADLSection } from './ADLSection';
-export { default as EnvironmentalSection } from './EnvironmentalSection';
-export { default as RecommendationsSection } from './RecommendationsSection';
-export { default as ClinicalSection } from './ClinicalSection';
-export { default as DocumentationSection } from './DocumentationSection';
+export { ADLSection } from './ADLSection';
+export { ClinicalSection } from './ClinicalSection';
+export { DemographicSection } from './DemographicSection';
+export { DocumentationSection } from './DocumentationSection';
+export { EnvironmentalSection } from './EnvironmentalSection';
+export { FunctionalSection } from './FunctionalSection';
+export { RecommendationsSection } from './RecommendationsSection';

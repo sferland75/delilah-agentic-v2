@@ -1,139 +1,49 @@
-import { Assessment, AssessmentStatus } from '../types/assessment';
+import { api } from './api';
 
-// Mock data for development
-const createMockAssessment = (): Assessment => ({
-    id: Math.random().toString(36).substr(2, 9),
-    clientId: '',
-    dateCreated: new Date().toISOString(),
-    lastModified: new Date().toISOString(),
-    status: 'draft',
-    emergencyContact: {
-        name: '',
-        relationship: '',
-        phone: ''
-    },
-    clinicalInfo: {
-        diagnosis: '',
-        medicalHistory: '',
-        medications: [],
-        allergies: []
-    },
+export interface Assessment {
+    id: string;
+    type: 'initial' | 'followUp' | 'discharge';
+    status: 'draft' | 'completed' | 'archived';
+    clientInfo: {
+        name: string;
+        dateOfBirth: string;
+    };
     functionalStatus: {
-        mobility: '',
-        selfCare: '',
-        communication: '',
-        cognition: '',
-        transfers: '',
-        homeManagement: '',
-        communityAccess: '',
-        social: '',
-        notes: ''
-    },
-    homeEnvironment: {
-        safetyRisks: [],
-        homeSetup: '',
-        modifications: [],
-        equipment: [],
-        supportSystems: ''
-    },
-    recommendations: {
-        immediate: [],
-        shortTerm: [],
-        longTerm: [],
-        equipment: [],
-        services: [],
-        modifications: [],
-        followUp: '',
-        notes: ''
-    }
-});
-
-const MOCK_ASSESSMENTS: Assessment[] = [
-    createMockAssessment(),
-    createMockAssessment()
-];
-
-class AssessmentService {
-    private mockAssessments: Assessment[] = MOCK_ASSESSMENTS;
-
-    async getAll(): Promise<Assessment[]> {
-        return Promise.resolve(this.mockAssessments);
-    }
-
-    async get(id: string): Promise<Assessment | null> {
-        const assessment = this.mockAssessments.find(a => a.id === id);
-        return Promise.resolve(assessment || null);
-    }
-
-    // Alias for get method to maintain compatibility
-    async getById(id: string): Promise<Assessment | null> {
-        return this.get(id);
-    }
-
-    async getClients(): Promise<Array<{ id: string; name: string }>> {
-        return Promise.resolve([
-            { id: '1', name: 'John Doe' },
-            { id: '2', name: 'Jane Smith' }
-        ]);
-    }
-
-    async create(data: Partial<Assessment>): Promise<Assessment> {
-        const newAssessment: Assessment = {
-            ...createMockAssessment(),
-            ...data,
-            id: Math.random().toString(36).substr(2, 9),
-            dateCreated: new Date().toISOString(),
-            lastModified: new Date().toISOString(),
-            status: 'draft'
-        };
-
-        this.mockAssessments.push(newAssessment);
-        return Promise.resolve(newAssessment);
-    }
-
-    async update(id: string, data: Partial<Assessment>): Promise<Assessment> {
-        const index = this.mockAssessments.findIndex(a => a.id === id);
-        if (index === -1) {
-            throw new Error('Assessment not found');
-        }
-
-        const updatedAssessment: Assessment = {
-            ...this.mockAssessments[index],
-            ...data,
-            id,
-            lastModified: new Date().toISOString()
-        };
-
-        this.mockAssessments[index] = updatedAssessment;
-        return Promise.resolve(updatedAssessment);
-    }
-
-    async delete(id: string): Promise<void> {
-        const index = this.mockAssessments.findIndex(a => a.id === id);
-        if (index === -1) {
-            throw new Error('Assessment not found');
-        }
-
-        this.mockAssessments.splice(index, 1);
-        return Promise.resolve();
-    }
-
-    async complete(id: string): Promise<Assessment> {
-        const index = this.mockAssessments.findIndex(a => a.id === id);
-        if (index === -1) {
-            throw new Error('Assessment not found');
-        }
-
-        const assessment = this.mockAssessments[index];
-        const updatedAssessment: Assessment = {
-            ...assessment,
-            status: 'completed',
-            lastModified: new Date().toISOString()
-        };
-
-        this.mockAssessments[index] = updatedAssessment;
-        return Promise.resolve(updatedAssessment);
-    }
+        mobility: string;
+        adl: string;
+        iadl: string;
+    };
+    environment: {
+        homeSetup: string;
+        safetyRisks: string[];
+    };
+    createdAt: string;
+    updatedAt: string;
 }
 
-export const assessmentService = new AssessmentService();
+export const assessmentService = {
+    async create(data: Omit<Assessment, 'id' | 'createdAt' | 'updatedAt'>) {
+        return api.post<Assessment>('/assessments', data);
+    },
+
+    async update(id: string, data: Partial<Assessment>) {
+        return api.put<Assessment>(`/assessments/${id}`, data);
+    },
+
+    async getById(id: string) {
+        return api.get<Assessment>(`/assessments/${id}`);
+    },
+
+    async list(filters?: { status?: string; type?: string }) {
+        const params = new URLSearchParams(filters);
+        return api.get<Assessment[]>(`/assessments?${params}`);
+    },
+
+    async delete(id: string) {
+        return api.delete(`/assessments/${id}`);
+    },
+
+    async archive(id: string) {
+        return api.put<Assessment>(`/assessments/${id}/archive`, {});
+    }
+};
